@@ -3,11 +3,14 @@ import os
 import pprint
 import shutil
 import tempfile
+import time
 
 import greader
 
 with open("rss2mobi.config") as f:
     Config = ast.literal_eval(f.read())
+
+today = "{0.tm_year:04}-{0.tm_mon:02}-{0.tm_mday:02}".format(time.localtime(time.time()))
 
 reader = greader.GoogleReader(Config['account'], Config['password'])
 reader.login()
@@ -31,17 +34,18 @@ try:
         print("</body>", file=f)
         print("</html>", file=f)
         f.close()
-    f = open(os.path.join(dir, "reader.opf"), "w")
+    opfn = "reader-{0}.opf".format(today)
+    f = open(os.path.join(dir, opfn), "w")
     print("""<?xml version="1.0" encoding="UTF-8"?>
     <package unique-identifier="uid" xmlns:dc="Dublin Core">
         <metadata>
             <dc-metadata>
-                <dc:Identifier id="uid">reader</dc:Identifier>
-                <dc:Title>Reader<dc:Title>
+                <dc:Identifier id="uid">reader-{0}</dc:Identifier>
+                <dc:Title>Reader {0} ({1})</dc:Title>
                 <dc:Language>EN</dc:Language>
             </dc-metadata>
         </metadata>
-        <manifest>""", file=f)
+        <manifest>""".format(today, len(feed['items'])), file=f)
     for e in feed['items']:
         print("""<item id="{0}" href="{0}.html" media-type="text/html" />""".format(e['id'].replace("/", "_")), file=f)
     print("""</manifest>
@@ -51,6 +55,6 @@ try:
     print("""</spine>
     </package>""", file=f)
     f.close()
-    os.system("/home/greg/build/kindlegen/kindlegen {0}".format(os.path.join(dir, "reader.opf")))
+    os.system("/home/greg/build/kindlegen/kindlegen {0}".format(os.path.join(dir, opfn)))
 finally:
     pass #shutil.rmtree(dir)
