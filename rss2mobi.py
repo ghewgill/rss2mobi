@@ -88,6 +88,25 @@ try:
         print("</body>", file=f)
         print("</html>", file=f)
 
+    with open(os.path.join(dir, "toc.ncx"), "w", encoding="utf-8") as f:
+        print("""<?xml version="1.0" encoding="UTF-8"?>""", file=f)
+        print("""<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="en-US">""", file=f)
+        print("""<docTitle><text>Google Reader {}</text></docTitle>""".format(today), file=f)
+        print("<navMap>", file=f)
+        print("""<navPoint class="toc" id="toc" playOrder="1">""", file=f)
+        print("""  <navLabel><text>Table of Contents</text></navLabel>""", file=f)
+        print("""  <content src="contents.html" />""", file=f)
+        print("""</navPoint>""", file=f)
+        order = 2
+        for e in feed['items']:
+            print("""<navPoint class="chapter" id="{0}" playOrder="{1}">""".format(e['fname'], order), file=f)
+            print("""  <navLabel><text>{}</text></navLabel>""".format(e['title']), file=f)
+            print("""  <content src="{}" />""".format(e['fname']), file=f)
+            print("""</navPoint>""", file=f)
+            order += 1
+        print("</navMap>", file=f)
+        print("</ncx>", file=f)
+
     opfn = "reader-{0}.opf".format(today)
     f = open(os.path.join(dir, opfn), "w")
     print("""<?xml version="1.0" encoding="UTF-8"?>
@@ -97,6 +116,7 @@ try:
                 <dc:Identifier id="uid">reader-{0}</dc:Identifier>
                 <dc:Title>Reader {0} ({1})</dc:Title>
                 <dc:Language>EN</dc:Language>
+                <dc:Date>{0}</dc:Date>
             </dc-metadata>
         </metadata>
         <manifest>""".format(today, len(feed['items'])), file=f)
@@ -105,8 +125,9 @@ try:
         print("""<item id="{0}" href="{0}.html" media-type="text/html" />""".format(e['id'].replace("/", "_")), file=f)
     for i in g_Images:
         print("""<item id="{0}" href="{1}" media-type="{2}" />""".format(*i), file=f)
+    print("""<item id="toc" media-type="application/x-dtbncx+xml" href="toc.ncx" />""", file=f)
     print("""</manifest>
-        <spine>""", file=f)
+        <spine toc="toc">""", file=f)
     print("""<itemref idref="contents" />""", file=f)
     for e in feed['items']:
         print("""<itemref idref="{0}" />""".format(e['id'].replace("/", "_")), file=f)
