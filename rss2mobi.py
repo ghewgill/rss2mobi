@@ -60,7 +60,9 @@ os.mkdir(dir)
 try:
     for e in feed['items']:
         #pprint.pprint(e)
-        f = open(os.path.join(dir, e['id'].replace("/", "_"))+".html", "w", encoding="utf-8")
+        fname = e['id'].replace("/", "_") + ".html"
+        e['fname'] = fname
+        f = open(os.path.join(dir, fname), "w", encoding="utf-8")
         print("""<?xml version="1.0" encoding="UTF-8"?>""", file=f)
         print("""<html xmlns="http://www.w3.org/1999/xhtml>""", file=f)
         print("<body>", file=f)
@@ -75,6 +77,17 @@ try:
         print("</html>", file=f)
         f.close()
 
+    with open(os.path.join(dir, "contents.html"), "w", encoding="utf-8") as f:
+        print("""<?xml version="1.0" encoding="UTF-8"?>""", file=f)
+        print("""<html xmlns="http://www.w3.org/1999/xhtml>""", file=f)
+        print("<body>", file=f)
+        print("<h1>Google Reader {}</h1>".format(today), file=f)
+        print("<h2>{0}</h2>".format(len(feed['items'])), file=f)
+        for e in feed['items']:
+            print("""<p><a href="{0}">{2} ({1})</a></p>""".format(e['fname'], e['origin']['title'], e['title']), file=f)
+        print("</body>", file=f)
+        print("</html>", file=f)
+
     opfn = "reader-{0}.opf".format(today)
     f = open(os.path.join(dir, opfn), "w")
     print("""<?xml version="1.0" encoding="UTF-8"?>
@@ -87,12 +100,14 @@ try:
             </dc-metadata>
         </metadata>
         <manifest>""".format(today, len(feed['items'])), file=f)
+    print("""<item id="contents" href="contents.html" media-type="text/html" />""", file=f)
     for e in feed['items']:
         print("""<item id="{0}" href="{0}.html" media-type="text/html" />""".format(e['id'].replace("/", "_")), file=f)
     for i in g_Images:
         print("""<item id="{0}" href="{1}" media-type="{2}" />""".format(*i), file=f)
     print("""</manifest>
         <spine>""", file=f)
+    print("""<itemref idref="contents" />""", file=f)
     for e in feed['items']:
         print("""<itemref idref="{0}" />""".format(e['id'].replace("/", "_")), file=f)
     print("""</spine>
