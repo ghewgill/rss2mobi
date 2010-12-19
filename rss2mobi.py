@@ -134,6 +134,6 @@ try:
     print("""</spine>
     </package>""", file=f)
     f.close()
-    os.system("/home/greg/build/kindlegen/kindlegen {0}".format(os.path.join(dir, opfn)))
+    os.system("{0} {1}".format(Config['kindlegen'], os.path.join(dir, opfn)))
 finally:
     pass #shutil.rmtree(dir)
