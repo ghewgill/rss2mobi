@@ -53,6 +53,8 @@ reader = greader.GoogleReader(Config['account'], Config['password'])
 reader.login()
 feed = reader.reading_list()
 
+feed['items'].reverse()
+
 if os.access("tmp", os.F_OK):
     shutil.rmtree("tmp")
 dir = "tmp" #tempfile.mkdtemp(dir=".")
