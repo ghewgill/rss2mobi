@@ -60,6 +60,8 @@ if os.access("tmp", os.F_OK):
 dir = "tmp" #tempfile.mkdtemp(dir=".")
 os.mkdir(dir)
 try:
+    with open(os.path.join(dir, "reading_list.out"), "w", encoding="utf-8") as f:
+        pprint.pprint(feed, stream=f)
     for e in feed['items']:
         #pprint.pprint(e)
         fname = e['id'].replace("/", "_") + ".html"
