@@ -137,5 +137,8 @@ try:
     </package>""", file=f)
     f.close()
     os.system("{0} {1}".format(Config['kindlegen'], os.path.join(dir, opfn)))
+    assert os.access(os.path.join(dir, "reader-{0}.mobi".format(today)), os.F_OK)
+    for e in feed['items']:
+        reader.mark_read(e['origin']['streamId'], e['id'])
 finally:
     pass #shutil.rmtree(dir)

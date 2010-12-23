@@ -13,7 +13,7 @@ class GoogleReader:
         self.auth = dict(x.split("=") for x in page.split("\n") if x)["Auth"]
         print("Auth:", self.auth)
         r = urllib.request.urlopen(urllib.request.Request("http://www.google.com/reader/api/0/token", headers={"Authorization": "GoogleLogin auth={0}".format(self.auth)}))
-        self.token = r.read()
+        self.token = r.read().decode("utf-8")
         print("Token:", self.token)
 
     def reading_list(self):
@@ -31,3 +31,7 @@ class GoogleReader:
                 break
             continuation = data['continuation']
         return retval
+
+    def mark_read(self, feed, id):
+        r = urllib.request.urlopen(urllib.request.Request("http://www.google.com/reader/api/0/edit-tag", headers={"Authorization": "GoogleLogin auth={0}".format(self.auth)}), "a=user/-/state/com.google/read&s={0}&i={1}&T={2}".format(feed, id, self.token))
+        assert r.read().decode("utf-8") == "OK"
