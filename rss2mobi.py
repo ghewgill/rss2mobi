@@ -43,6 +43,10 @@ class ImageRewriter(html.parser.HTMLParser):
         self.output += "</{}>".format(tag)
     def handle_data(self, data):
         self.output += data
+    def handle_charref(self, name):
+        self.output += "&#{};".format(name)
+    def handle_entityref(self, name):
+        self.output += "&{};".format(name)
 
 with open("rss2mobi.config") as f:
     Config = ast.literal_eval(f.read())
