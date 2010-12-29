@@ -68,7 +68,7 @@ try:
         e['fname'] = fname
         f = open(os.path.join(dir, fname), "w", encoding="utf-8")
         print("""<?xml version="1.0" encoding="UTF-8"?>""", file=f)
-        print("""<html xmlns="http://www.w3.org/1999/xhtml>""", file=f)
+        print("""<html xmlns="http://www.w3.org/1999/xhtml">""", file=f)
         print("<body>", file=f)
         print("<h1>{0}</h1>".format(e['origin']['title']), file=f)
         print("""<h2><a href="{0}">{1}</a></h2>""".format(e['alternate'][0]['href'], e['title']), file=f)
