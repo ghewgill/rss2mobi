@@ -26,6 +26,9 @@ class ImageRewriter(html.parser.HTMLParser):
             print("fetching {}".format(src))
             r = urllib.request.urlopen(src)
             ct = r.getheader("Content-Type")
+            if ';' in ct:
+                # handle bizarre Content-Type: image/png; charset=UTF-8
+                ct = ct[:ct.index(';')]
             ext = {
                 "image/gif":  ".gif",
                 "image/jpeg": ".jpg",
