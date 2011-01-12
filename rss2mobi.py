@@ -12,6 +12,18 @@ import greader
 
 g_Images = set()
 
+def fetch_retry(url):
+    tries = 0
+    while True:
+        try:
+            return urllib.request.urlopen(url)
+        except urllib.error.URLError as x:
+            tries += 1
+            if tries < 3:
+                print("  retry: {}".format(x))
+            else:
+                raise
+
 class ImageRewriter(html.parser.HTMLParser):
     def __init__(self):
         super().__init__()
@@ -24,7 +36,7 @@ class ImageRewriter(html.parser.HTMLParser):
             id = hashlib.sha1(src.encode("utf-8")).hexdigest()
 
             print("fetching {}".format(src))
-            r = urllib.request.urlopen(src)
+            r = fetch_retry(src)
             ct = r.getheader("Content-Type")
             if ';' in ct:
                 # handle bizarre Content-Type: image/png; charset=UTF-8
