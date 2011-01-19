@@ -45,12 +45,14 @@ class ImageRewriter(html.parser.HTMLParser):
                 "image/gif":  ".gif",
                 "image/jpeg": ".jpg",
                 "image/png":  ".png",
-            }[ct]
-            with open(os.path.join(dir, id + ext), "wb") as f:
-                f.write(r.read())
-
-            attrs[i] = (attrs[i][0], id + ext)
-            g_Images.add((id, id + ext, ct))
+            }.get(ct)
+            if ext is not None:
+                with open(os.path.join(dir, id + ext), "wb") as f:
+                    f.write(r.read())
+                attrs[i] = (attrs[i][0], id + ext)
+                g_Images.add((id, id + ext, ct))
+            else:
+                print("  {}".format(ct))
             self.output += "<{0}{1}>".format(tag, "".join(' {0}="{1}"'.format(*x) for x in attrs))
         else:
             self.output += self.get_starttag_text()
