@@ -4,6 +4,7 @@ import html.parser
 import os
 import pprint
 import shutil
+import sys
 import tempfile
 import time
 import urllib
@@ -64,6 +65,15 @@ class ImageRewriter(html.parser.HTMLParser):
         self.output += "&#{};".format(name)
     def handle_entityref(self, name):
         self.output += "&{};".format(name)
+
+KeepUnread = False
+
+for a in sys.argv[1:]:
+    if a in ("--keep-unread", "-k"):
+        KeepUnread = True
+    else:
+        print("Unknown command line option: {}".format(a))
+        sys.exit(1)
 
 with open("rss2mobi.config") as f:
     Config = ast.literal_eval(f.read())
@@ -161,7 +171,8 @@ try:
     f.close()
     os.system("{0} {1}".format(Config['kindlegen'], os.path.join(dir, opfn)))
     assert os.access(os.path.join(dir, "reader-{0}.mobi".format(today)), os.F_OK)
-    for e in feed['items']:
-        reader.mark_read(e['origin']['streamId'], e['id'])
+    if not KeepUnread:
+        for e in feed['items']:
+            reader.mark_read(e['origin']['streamId'], e['id'])
 finally:
     pass #shutil.rmtree(dir)
