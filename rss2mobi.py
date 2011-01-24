@@ -54,7 +54,7 @@ class ImageRewriter(html.parser.HTMLParser):
                 g_Images.add((id, id + ext, ct))
             else:
                 print("  {}".format(ct))
-            self.output += "<{0}{1}>".format(tag, "".join(' {0}="{1}"'.format(*x) for x in attrs))
+            self.output += "<{0}{1} />".format(tag, "".join(' {0}="{1}"'.format(*x) for x in attrs))
         else:
             self.output += self.get_starttag_text()
     def handle_endtag(self, tag):
