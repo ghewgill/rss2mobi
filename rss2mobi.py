@@ -25,6 +25,13 @@ def fetch_retry(url):
             else:
                 raise
 
+def lget(attrs, name):
+    try:
+        i = [x[0] for x in attrs].index(name)
+        return attrs[i][1]
+    except ValueError:
+        return None
+
 class ImageRewriter(html.parser.HTMLParser):
     def __init__(self):
         super().__init__()
@@ -32,29 +39,30 @@ class ImageRewriter(html.parser.HTMLParser):
         self.images = []
     def handle_starttag(self, tag, attrs):
         if tag == "img":
-            i = [x[0] for x in attrs].index("src")
-            src = attrs[i][1]
-            id = hashlib.sha1(src.encode("utf-8")).hexdigest()
+            if lget(attrs, "height") != "1" or lget(attrs, "width") != "1":
+                i = [x[0] for x in attrs].index("src")
+                src = attrs[i][1]
+                id = hashlib.sha1(src.encode("utf-8")).hexdigest()
 
-            print("fetching {}".format(src))
-            r = fetch_retry(src)
-            ct = r.getheader("Content-Type")
-            if ';' in ct:
-                # handle bizarre Content-Type: image/png; charset=UTF-8
-                ct = ct[:ct.index(';')]
-            ext = {
-                "image/gif":  ".gif",
-                "image/jpeg": ".jpg",
-                "image/png":  ".png",
-            }.get(ct)
-            if ext is not None:
-                with open(os.path.join(dir, id + ext), "wb") as f:
-                    f.write(r.read())
-                attrs[i] = (attrs[i][0], id + ext)
-                g_Images.add((id, id + ext, ct))
-            else:
-                print("  {}".format(ct))
-            self.output += "<{0}{1} />".format(tag, "".join(' {0}="{1}"'.format(*x) for x in attrs))
+                print("fetching {}".format(src))
+                r = fetch_retry(src)
+                ct = r.getheader("Content-Type")
+                if ';' in ct:
+                    # handle bizarre Content-Type: image/png; charset=UTF-8
+                    ct = ct[:ct.index(';')]
+                ext = {
+                    "image/gif":  ".gif",
+                    "image/jpeg": ".jpg",
+                    "image/png":  ".png",
+                }.get(ct)
+                if ext is not None:
+                    with open(os.path.join(dir, id + ext), "wb") as f:
+                        f.write(r.read())
+                    attrs[i] = (attrs[i][0], id + ext)
+                    g_Images.add((id, id + ext, ct))
+                else:
+                    print("  {}".format(ct))
+                self.output += "<{0}{1} />".format(tag, "".join(' {0}="{1}"'.format(*x) for x in attrs))
         else:
             self.output += self.get_starttag_text()
     def handle_endtag(self, tag):
