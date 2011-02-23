@@ -46,7 +46,12 @@ class ImageRewriter(html.parser.HTMLParser):
                 id = hashlib.sha1(src.encode("utf-8")).hexdigest()
 
                 print("fetching {}".format(src))
-                r = fetch_retry(src)
+                try:
+                    r = fetch_retry(src)
+                except Exception as x:
+                    print("oh well:", x)
+                    self.output += self.get_starttag_text()
+                    return
                 ct = r.getheader("Content-Type")
                 if ';' in ct:
                     # handle bizarre Content-Type: image/png; charset=UTF-8
