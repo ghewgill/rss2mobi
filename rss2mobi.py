@@ -14,6 +14,9 @@ import greader
 
 g_Images = set()
 
+def nameify(s):
+    return s.replace("/", "_").replace(":", "_")
+
 def fetch_retry(url):
     tries = 0
     while True:
@@ -109,7 +112,7 @@ try:
         pprint.pprint(feed, stream=f)
     for e in feed['items']:
         #pprint.pprint(e)
-        fname = e['id'].replace("/", "_") + ".html"
+        fname = nameify(e['id']) + ".html"
         e['fname'] = fname
         f = open(os.path.join(dir, fname), "w", encoding="utf-8")
         print("""<?xml version="1.0" encoding="UTF-8"?>""", file=f)
@@ -174,7 +177,7 @@ try:
         <manifest>""".format(today, len(feed['items'])), file=f)
     print("""<item id="contents" href="contents.html" media-type="text/html" />""", file=f)
     for e in feed['items']:
-        print("""<item id="{0}" href="{0}.html" media-type="text/html" />""".format(e['id'].replace("/", "_")), file=f)
+        print("""<item id="{0}" href="{0}.html" media-type="text/html" />""".format(nameify(e['id'])), file=f)
     for i in g_Images:
         print("""<item id="{0}" href="{1}" media-type="{2}" />""".format(*i), file=f)
     print("""<item id="toc" media-type="application/x-dtbncx+xml" href="toc.ncx" />""", file=f)
@@ -182,7 +185,7 @@ try:
         <spine toc="toc">""", file=f)
     print("""<itemref idref="contents" />""", file=f)
     for e in feed['items']:
-        print("""<itemref idref="{0}" />""".format(e['id'].replace("/", "_")), file=f)
+        print("""<itemref idref="{0}" />""".format(nameify(e['id'])), file=f)
     print("""</spine>
     </package>""", file=f)
     f.close()
