@@ -118,7 +118,10 @@ try:
         print("<h1>{0}</h1>".format(e['origin']['title']), file=f)
         print("""<h2><a href="{0}">{1}</a></h2>""".format(e['alternate'][0]['href'], e['title']), file=f)
         which = "content" if "content" in e else "summary"
-        content = e[which]['content']
+        if which in e:
+            content = e[which]['content']
+        else:
+            content = ""
         rw = ImageRewriter()
         rw.feed(content)
         print(rw.output, file=f)
