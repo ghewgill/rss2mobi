@@ -48,27 +48,27 @@ class ImageRewriter(html.parser.HTMLParser):
                 print("fetching {}".format(src))
                 try:
                     r = fetch_retry(src)
+                    ct = r.getheader("Content-Type")
+                    if ';' in ct:
+                        # handle bizarre Content-Type: image/png; charset=UTF-8
+                        ct = ct[:ct.index(';')]
+                    ext = {
+                        "image/gif":  ".gif",
+                        "image/jpeg": ".jpg",
+                        "image/png":  ".png",
+                    }.get(ct)
+                    if ext is not None:
+                        with open(os.path.join(dir, id + ext), "wb") as f:
+                            f.write(r.read())
+                        attrs[i] = (attrs[i][0], id + ext)
+                        g_Images.add((id, id + ext, ct))
+                    else:
+                        print("  {}".format(ct))
+                    self.output += "<{0}{1} />".format(tag, "".join((' {0}="{1}"'.format(x[0], cgi.escape(x[1], True)) if x[1] else " {0}".format(x[0])) for x in attrs))
                 except Exception as x:
                     print("oh well:", x)
                     self.output += self.get_starttag_text()
                     return
-                ct = r.getheader("Content-Type")
-                if ';' in ct:
-                    # handle bizarre Content-Type: image/png; charset=UTF-8
-                    ct = ct[:ct.index(';')]
-                ext = {
-                    "image/gif":  ".gif",
-                    "image/jpeg": ".jpg",
-                    "image/png":  ".png",
-                }.get(ct)
-                if ext is not None:
-                    with open(os.path.join(dir, id + ext), "wb") as f:
-                        f.write(r.read())
-                    attrs[i] = (attrs[i][0], id + ext)
-                    g_Images.add((id, id + ext, ct))
-                else:
-                    print("  {}".format(ct))
-                self.output += "<{0}{1} />".format(tag, "".join((' {0}="{1}"'.format(x[0], cgi.escape(x[1], True)) if x[1] else " {0}".format(x[0])) for x in attrs))
         else:
             self.output += self.get_starttag_text()
     def handle_endtag(self, tag):
