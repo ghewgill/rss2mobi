@@ -102,6 +102,7 @@ reader.login()
 feed = reader.reading_list()
 
 feed['items'].reverse()
+feed['items'] = [x for x in feed['items'] if 'alternate' in x]
 
 if os.access("tmp", os.F_OK):
     shutil.rmtree("tmp")
