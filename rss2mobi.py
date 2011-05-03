@@ -4,7 +4,9 @@ import hashlib
 import html.parser
 import os
 import pprint
+import re
 import shutil
+import subprocess
 import sys
 import tempfile
 import time
@@ -63,6 +65,14 @@ class ImageRewriter(html.parser.HTMLParser):
                     if ext is not None:
                         with open(os.path.join(dir, id + ext), "wb") as f:
                             f.write(r.read())
+                        if SizeLimit:
+                            p = subprocess.Popen(["identify", os.path.join(dir, id + ext)], stdout=subprocess.PIPE)
+                            stdout, _ = p.communicate()
+                            m = re.search(b"(\\d+)x(\\d+)", stdout)
+                            if m is not None:
+                                width = int(m.group(1))
+                                if width > SizeLimit:
+                                    subprocess.call(["mogrify", "-geometry", str(SizeLimit), os.path.join(dir, id + ext)])
                         attrs[i] = (attrs[i][0], id + ext)
                         g_Images.add((id, id + ext, ct))
                     else:
@@ -85,6 +95,7 @@ class ImageRewriter(html.parser.HTMLParser):
 
 KeepUnread = False
 Label = None
+SizeLimit = None
 
 i = 1
 while i < len(sys.argv):
@@ -94,6 +105,9 @@ while i < len(sys.argv):
     elif a in ("--label", "-l"):
         i += 1
         Label = sys.argv[i]
+    elif a in ("--size-limit", "-s"):
+        i += 1
+        SizeLimit = int(sys.argv[i])
     else:
         print("Unknown command line option: {}".format(a))
         sys.exit(1)
