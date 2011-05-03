@@ -84,13 +84,20 @@ class ImageRewriter(html.parser.HTMLParser):
         self.output += "&{};".format(name)
 
 KeepUnread = False
+Label = None
 
-for a in sys.argv[1:]:
+i = 1
+while i < len(sys.argv):
+    a = sys.argv[i]
     if a in ("--keep-unread", "-k"):
         KeepUnread = True
+    elif a in ("--label", "-l"):
+        i += 1
+        Label = sys.argv[i]
     else:
         print("Unknown command line option: {}".format(a))
         sys.exit(1)
+    i += 1
 
 with open("rss2mobi.config") as f:
     Config = ast.literal_eval(f.read())
@@ -99,7 +106,7 @@ today = "{0.tm_year:04}-{0.tm_mon:02}-{0.tm_mday:02}".format(time.localtime(time
 
 reader = greader.GoogleReader(Config['account'], Config['password'])
 reader.login()
-feed = reader.reading_list()
+feed = reader.reading_list(label=Label)
 
 feed['items'].reverse()
 feed['items'] = [x for x in feed['items'] if 'alternate' in x]

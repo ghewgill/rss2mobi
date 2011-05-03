@@ -16,11 +16,14 @@ class GoogleReader:
         self.token = r.read().decode("utf-8")
         print("Token:", self.token)
 
-    def reading_list(self):
+    def reading_list(self, label=None):
         retval = None
         continuation = None
         while True:
-            r = urllib.request.urlopen(urllib.request.Request("http://www.google.com/reader/api/0/stream/contents/user/-/state/com.google/reading-list?xt=user/-/state/com.google/read{0}".format("&c={0}".format(continuation) if continuation else ""), headers={"Authorization": "GoogleLogin auth={0}".format(self.auth)}))
+            r = urllib.request.urlopen(urllib.request.Request("http://www.google.com/reader/api/0/stream/contents/user/-/{items}?xt=user/-/state/com.google/read{cont}".format(
+                items="label/{0}".format(label) if label else "state/com.google/reading-list",
+                cont="&c={0}".format(continuation) if continuation else "",
+            ), headers={"Authorization": "GoogleLogin auth={0}".format(self.auth)}))
             data = json.loads(r.read().decode("utf-8"))
             if retval is None:
                 retval = data
