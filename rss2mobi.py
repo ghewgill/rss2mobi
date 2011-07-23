@@ -124,6 +124,7 @@ feed = reader.reading_list(label=Label)
 
 feed['items'].reverse()
 feed['items'] = [x for x in feed['items'] if 'alternate' in x]
+feed['items'] = [x for i, x in enumerate(feed['items']) if x['id'] not in [y['id'] for y in feed['items'][:i]]]
 
 if os.access("tmp", os.F_OK):
     shutil.rmtree("tmp")
