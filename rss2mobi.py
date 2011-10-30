@@ -139,6 +139,8 @@ try:
         e['fname'] = fname
         if 'title' not in e:
             e['title'] = "(no title)"
+        if 'title' not in e['origin']:
+            e['origin']['title'] = "(no name)"
         f = open(os.path.join(dir, fname), "w", encoding="utf-8")
         print("""<?xml version="1.0" encoding="UTF-8"?>""", file=f)
         print("""<html xmlns="http://www.w3.org/1999/xhtml">""", file=f)
