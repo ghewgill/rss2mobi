@@ -36,5 +36,17 @@ class GoogleReader:
         return retval
 
     def mark_read(self, feed, id):
-        r = urllib.request.urlopen(urllib.request.Request("http://www.google.com/reader/api/0/edit-tag", headers={"Authorization": "GoogleLogin auth={0}".format(self.auth)}), "a=user/-/state/com.google/read&s={0}&i={1}&T={2}".format(feed, id, self.token))
-        assert r.read().decode("utf-8") == "OK"
+        tries = 0
+        while True:
+            try:
+                r = urllib.request.urlopen(urllib.request.Request("http://www.google.com/reader/api/0/edit-tag", headers={"Authorization": "GoogleLogin auth={0}".format(self.auth)}), "a=user/-/state/com.google/read&s={0}&i={1}&T={2}".format(feed, id, self.token))
+                assert r.read().decode("utf-8") == "OK"
+                break
+            except urllib.error.URLError as x:
+                if tries == 0:
+                    print("mark_read id={0}".format(id))
+                tries += 1
+                if tries < 3:
+                    print("  retry: {}".format(x))
+                else:
+                    raise
