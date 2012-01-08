@@ -39,7 +39,7 @@ class GoogleReader:
         tries = 0
         while True:
             try:
-                r = urllib.request.urlopen(urllib.request.Request("http://www.google.com/reader/api/0/edit-tag", headers={"Authorization": "GoogleLogin auth={0}".format(self.auth)}), "a=user/-/state/com.google/read&s={0}&i={1}&T={2}".format(feed, id, self.token))
+                r = urllib.request.urlopen(urllib.request.Request("http://www.google.com/reader/api/0/edit-tag", headers={"Authorization": "GoogleLogin auth={0}".format(self.auth)}), "a=user/-/state/com.google/read&s={0}&i={1}&T={2}".format(feed, id, self.token).encode("utf-8"))
                 assert r.read().decode("utf-8") == "OK"
                 break
             except urllib.error.URLError as x:
