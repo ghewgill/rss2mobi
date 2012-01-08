@@ -95,6 +95,7 @@ class ImageRewriter(html.parser.HTMLParser):
 
 KeepUnread = False
 Label = None
+PostLimit = 200
 SizeLimit = None
 
 i = 1
@@ -105,6 +106,9 @@ while i < len(sys.argv):
     elif a in ("--label", "-l"):
         i += 1
         Label = sys.argv[i]
+    elif a in ("--post-limit", "-p"):
+        i += 1
+        PostLimit = int(sys.argv[i])
     elif a in ("--size-limit", "-s"):
         i += 1
         SizeLimit = int(sys.argv[i])
@@ -125,6 +129,9 @@ feed = reader.reading_list(label=Label)
 feed['items'].reverse()
 feed['items'] = [x for x in feed['items'] if 'alternate' in x]
 feed['items'] = [x for i, x in enumerate(feed['items']) if x['id'] not in [y['id'] for y in feed['items'][:i]]]
+if len(feed['items']) > PostLimit:
+    print("Posts limited to maximum of {} (from {})".format(PostLimit, len(feed['items'])))
+    feed['items'] = feed['items'][:PostLimit]
 
 if os.access("tmp", os.F_OK):
     shutil.rmtree("tmp")
